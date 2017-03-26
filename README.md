@@ -3,4 +3,7 @@ Visualise genomic rearangements
 
 
 run:
-python labyrinthine.py input.xls header output_prefix
+python labyrinthine.py input.csv header output_prefix
+
+
+under construction!

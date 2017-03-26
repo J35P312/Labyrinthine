@@ -1,6 +1,9 @@
 from PIL import Image, ImageDraw, ImageFont
 import sys
 import math
+#arg 1 input file
+#arg 2 = label
+#arg 3 output prefix
 
 #Jesper EIsfeldt
 #make bezier and pascal row was copied from user unutbu:http://stackoverflow.com/questions/246525/how-can-i-draw-a-bezier-curve-using-pythons-pil
@@ -80,6 +83,7 @@ x=3000
 y=1600
 tick_len=50
 link_heigth =10*tick_len
+scale=1000000
 
 start_pos=x_margin
 x_range=x-x_margin*2
@@ -103,6 +107,12 @@ for variant in ref_pos:
         colour = (0,0,255)
     elif "dup" in ref[variant]["variant_type"] or "Dup" in ref[variant]["variant_type"]:
         colour = (0,255,0)
+    elif "None" in ref[variant]["variant_type"] or "none" in ref[variant]["variant_type"]:
+        end_pos=start_pos+int( x_range/segments_to_draw)
+        pos_vector.append([start_pos,end_pos])
+        start_pos=end_pos
+        continue
+
     end_pos=start_pos+int( x_range/segments_to_draw)
     #end_pos=start_pos+ref[variant]["length"]/float(variant_len)*x_range
     draw.line( (start_pos, y_margin+link_heigth, end_pos, y_margin+link_heigth), fill = colour,width=4 )
@@ -110,17 +120,18 @@ for variant in ref_pos:
         draw.line( (start_pos, y_margin-tick_len+link_heigth, start_pos, y_margin+tick_len+link_heigth), fill = (0,0,0),width=4 )
         draw.line( (end_pos, y_margin-tick_len+link_heigth, end_pos, y_margin+tick_len+link_heigth), fill = (0,0,0),width=4 )
     draw.text( ( start_pos+int((end_pos - start_pos)/2) , y_margin+2*tick_len+link_heigth), "{}".format(variant),font=font, fill=(0,0,0))
+
     if variant != ref_pos[-1]:
         font = ImageFont.truetype("Pillow/Tests/fonts/FreeMonoBold.ttf", 30)
-        w, h = draw.textsize(str(int(ref[variant]["posB"])/1000),font = font)
-        draw.text( ( end_pos-int(w/2), y_margin+tick_len+link_heigth), "{}".format(int(int(ref[variant]["posB"])/1000)),font=font, fill=(0,0,0))
+        w, h = draw.textsize(str(int(ref[variant]["posB"])/scale),font = font)
+        draw.text( ( end_pos-int(w/2), y_margin+tick_len+link_heigth), "{}".format(int(int(ref[variant]["posB"])/scale)),font=font, fill=(0,0,0))
         font = ImageFont.truetype("Pillow/Tests/fonts/FreeMonoBold.ttf", 40)
     else:
         font = ImageFont.truetype("Pillow/Tests/fonts/FreeMonoBold.ttf", 30)
         try:
-            draw.text( ( end_pos, y_margin+tick_len+link_heigth), "{} kb".format(int(int(ref[variant]["posB"])/1000)) ,font=font, fill=(0,0,0))
+            draw.text( ( end_pos, y_margin+tick_len+link_heigth), "{} Mb".format(int(int(ref[variant]["posB"])/scale)) ,font=font, fill=(0,0,0))
         except:
-            draw.text( ( end_pos, y_margin+tick_len+link_heigth), " kb",font=font, fill=(0,0,0))
+            draw.text( ( end_pos, y_margin+tick_len+link_heigth), " Mb",font=font, fill=(0,0,0))
 
     if "inv" in ref[variant]["variant_type"] or "Inv" in ref[variant]["variant_type"]:
         draw.line( (start_pos+int((end_pos-start_pos)/4), y_margin+link_heigth-int(tick_len/2), end_pos-int((end_pos-start_pos)/4) , y_margin+link_heigth-int(tick_len/2)), fill = (0,0,0),width=6 )    
@@ -158,8 +169,15 @@ for k in range(0,len(rea_pos)):
         colour = (0,0,255)
     elif "dup" in ref[variant]["variant_type"] or "Dup" in ref[variant]["variant_type"]:
         colour = (0,255,0)
+    elif "None" in ref[variant]["variant_type"] or "none" in ref[variant]["variant_type"]:
+        end_pos=start_pos+int( x_range/segments_to_draw)
+        start_pos=end_pos
+        continue
     end_pos=start_pos+int( x_range/segments_to_draw)
-
+    spacer=False
+    if k < ref_number-1:
+        if rea[k+1]["variant_type"] == "None":
+            spacer=True
     
     draw.line( (start_pos,  y-y_margin, end_pos, y-y_margin), fill = colour,width=4 )
     if k != 0 and variant!= rea_pos[-1]:
@@ -167,18 +185,18 @@ for k in range(0,len(rea_pos)):
         draw.line( (start_pos, y-y_margin-tick_len, start_pos, y-y_margin+tick_len), fill = (0,0,0),width=4 )
 
         
-    if k < ref_number-1:
-        print int(int(rea[rea_pos[k+1]]["posA"])/1000)
+    if k < ref_number-1 and not spacer:
+        print int(int(rea[rea_pos[k+1]]["posA"])/scale)
         font = ImageFont.truetype("Pillow/Tests/fonts/FreeMonoBold.ttf", 30)
-        w, h = draw.textsize(str("{} {}".format(int(int(ref[variant]["posB"])/1000),int(int(rea[rea_pos[k+1]]["posA"])/1000))),font = font)
-        draw.text( ( end_pos-int(w/2), y-y_margin+tick_len), "{} {}".format(int(int(rea[k]["posB"])/1000),int(int(rea[k+1]["posA"])/1000)),font=font, fill=(0,0,0))
+        w, h = draw.textsize(str("{} {}".format(int(int(ref[variant]["posB"])/scale),int(int(rea[rea_pos[k+1]]["posA"])/scale))),font = font)
+        draw.text( ( end_pos-int(w/2), y-y_margin+tick_len), "{} {}".format(int(int(rea[k]["posB"])/scale),int(int(rea[k+1]["posA"])/scale)),font=font, fill=(0,0,0))
         draw.line( (end_pos, y-y_margin-tick_len, end_pos, y-y_margin+tick_len), fill = (0,0,0),width=4 )
     else:
         font = ImageFont.truetype("Pillow/Tests/fonts/FreeMonoBold.ttf", 30)
         try:
-            draw.text( ( end_pos, y-y_margin+tick_len), "{} kb ".format(int(int(rea[k]["posB"])/1000)) ,font=font, fill=(0,0,0))
+            draw.text( ( end_pos, y-y_margin+tick_len), "{} Mb ".format(int(int(rea[k]["posB"])/scale)) ,font=font, fill=(0,0,0))
         except:
-            draw.text( ( end_pos, y-y_margin+tick_len), " kb " ,font=font, fill=(0,0,0))
+            draw.text( ( end_pos, y-y_margin+tick_len), " Mb " ,font=font, fill=(0,0,0))
     if "inv" in rea[k]["variant_type"] or "Inv" in rea[k]["variant_type"]:
         draw.line( (start_pos+int((end_pos-start_pos)/4),  y-y_margin-int(tick_len/2), end_pos-int((end_pos-start_pos)/4) ,  y-y_margin-int(tick_len/2)), fill = (0,0,0),width=6 )    
         x_start_pos=start_pos+int((end_pos-start_pos)/4)
