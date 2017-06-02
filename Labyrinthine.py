@@ -97,8 +97,8 @@ draw.text( ( int((x)/2-4*w) , int(y_margin/4)), "{}".format(header_string),font=
 #draw.line( (x_margin, y_margin+link_heigth, x-x_margin, y_margin+link_heigth), fill = (0,0,0),width=4 )
 #draw.line( (x_margin, y-y_margin, x-x_margin, y-y_margin), fill = (0,0,0),width=4 )
 pos_vector=[]
-font = ImageFont.truetype("Pillow/Tests/fonts/FreeMonoBold.ttf", 40)
-
+font = ImageFont.truetype("Pillow/Tests/fonts/FreeMonoBold.ttf", 80)
+line_width=10
 for variant in ref_pos:
     colour = (0,0,0)
     if "del" in ref[variant]["variant_type"] or "Del" in ref[variant]["variant_type"]:
@@ -115,23 +115,23 @@ for variant in ref_pos:
 
     end_pos=start_pos+int( x_range/segments_to_draw)
     #end_pos=start_pos+ref[variant]["length"]/float(variant_len)*x_range
-    draw.line( (start_pos, y_margin+link_heigth, end_pos, y_margin+link_heigth), fill = colour,width=4 )
+    draw.line( (start_pos, y_margin+link_heigth, end_pos, y_margin+link_heigth), fill = colour,width=line_width )
     if variant != ref_pos[0] and variant!= ref_pos[-1]:
-        draw.line( (start_pos, y_margin-tick_len+link_heigth, start_pos, y_margin+tick_len+link_heigth), fill = (0,0,0),width=4 )
-        draw.line( (end_pos, y_margin-tick_len+link_heigth, end_pos, y_margin+tick_len+link_heigth), fill = (0,0,0),width=4 )
+        draw.line( (start_pos, y_margin-tick_len+link_heigth, start_pos, y_margin+tick_len+link_heigth), fill = (0,0,0),width=line_width )
+        draw.line( (end_pos, y_margin-tick_len+link_heigth, end_pos, y_margin+tick_len+link_heigth), fill = (0,0,0),width=line_width )
     draw.text( ( start_pos+int((end_pos - start_pos)/2) , y_margin+2*tick_len+link_heigth), "{}".format(variant),font=font, fill=(0,0,0))
 
     if variant != ref_pos[-1]:
-        font = ImageFont.truetype("Pillow/Tests/fonts/FreeMonoBold.ttf", 30)
-        w, h = draw.textsize(str(int(ref[variant]["posB"])/scale),font = font)
-        draw.text( ( end_pos-int(w/2), y_margin+tick_len+link_heigth), "{}".format(int(int(ref[variant]["posB"])/scale)),font=font, fill=(0,0,0))
-        font = ImageFont.truetype("Pillow/Tests/fonts/FreeMonoBold.ttf", 40)
+        font = ImageFont.truetype("Pillow/Tests/fonts/FreeMonoBold.ttf", 50)
+        #w, h = draw.textsize(str(int(ref[variant]["posB"])/scale),font = font)
+        #draw.text( ( end_pos-int(w/2), y_margin+tick_len+link_heigth), "{}".format(int(int(ref[variant]["posB"])/scale)),font=font, fill=(0,0,0))
+        font = ImageFont.truetype("Pillow/Tests/fonts/FreeMonoBold.ttf", 80)
     else:
-        font = ImageFont.truetype("Pillow/Tests/fonts/FreeMonoBold.ttf", 30)
-        try:
-            draw.text( ( end_pos, y_margin+tick_len+link_heigth), "{} Mb".format(int(int(ref[variant]["posB"])/scale)) ,font=font, fill=(0,0,0))
-        except:
-            draw.text( ( end_pos, y_margin+tick_len+link_heigth), " Mb",font=font, fill=(0,0,0))
+        font = ImageFont.truetype("Pillow/Tests/fonts/FreeMonoBold.ttf", 50)
+        #try:
+        #    draw.text( ( end_pos, y_margin+tick_len+link_heigth), "{}".format(int(int(ref[variant]["posB"])/scale)) ,font=font, fill=(0,0,0))
+        #except:
+        #    draw.text( ( end_pos, y_margin+tick_len+link_heigth), "",font=font, fill=(0,0,0))
 
     if "inv" in ref[variant]["variant_type"] or "Inv" in ref[variant]["variant_type"]:
         draw.line( (start_pos+int((end_pos-start_pos)/4), y_margin+link_heigth-int(tick_len/2), end_pos-int((end_pos-start_pos)/4) , y_margin+link_heigth-int(tick_len/2)), fill = (0,0,0),width=6 )    
@@ -145,7 +145,7 @@ for variant in ref_pos:
             y_start_pos=int(round(m-j*increment))
             y_end_pos=int(round(m+j*increment))
             #print y_end_pos
-            draw.line( (i, y_start_pos, i, y_end_pos), fill = (0,0,0),width=8)
+            draw.line( (i, y_start_pos, i, y_end_pos), fill = (0,0,0),width=line_width*2)
             j +=1
 
 
@@ -179,24 +179,24 @@ for k in range(0,len(rea_pos)):
         if rea[k+1]["variant_type"] == "None":
             spacer=True
     
-    draw.line( (start_pos,  y-y_margin, end_pos, y-y_margin), fill = colour,width=4 )
+    draw.line( (start_pos,  y-y_margin, end_pos, y-y_margin), fill = colour,width=line_width )
     if k != 0 and variant!= rea_pos[-1]:
 
-        draw.line( (start_pos, y-y_margin-tick_len, start_pos, y-y_margin+tick_len), fill = (0,0,0),width=4 )
+        draw.line( (start_pos, y-y_margin-tick_len, start_pos, y-y_margin+tick_len), fill = (0,0,0),width=line_width )
 
         
     if k < ref_number-1 and not spacer:
         print int(int(rea[rea_pos[k+1]]["posA"])/scale)
-        font = ImageFont.truetype("Pillow/Tests/fonts/FreeMonoBold.ttf", 30)
+        font = ImageFont.truetype("Pillow/Tests/fonts/FreeMonoBold.ttf", 50)
         w, h = draw.textsize(str("{} {}".format(int(int(ref[variant]["posB"])/scale),int(int(rea[rea_pos[k+1]]["posA"])/scale))),font = font)
-        draw.text( ( end_pos-int(w/2), y-y_margin+tick_len), "{} {}".format(int(int(rea[k]["posB"])/scale),int(int(rea[k+1]["posA"])/scale)),font=font, fill=(0,0,0))
-        draw.line( (end_pos, y-y_margin-tick_len, end_pos, y-y_margin+tick_len), fill = (0,0,0),width=4 )
+        #draw.text( ( end_pos-int(w/2), y-y_margin+tick_len), "{} {}".format(int(int(rea[k]["posB"])/scale),int(int(rea[k+1]["posA"])/scale)),font=font, fill=(0,0,0))
+        draw.line( (end_pos, y-y_margin-tick_len, end_pos, y-y_margin+tick_len), fill = (0,0,0),width=line_width )
     else:
-        font = ImageFont.truetype("Pillow/Tests/fonts/FreeMonoBold.ttf", 30)
-        try:
-            draw.text( ( end_pos, y-y_margin+tick_len), "{} Mb ".format(int(int(rea[k]["posB"])/scale)) ,font=font, fill=(0,0,0))
-        except:
-            draw.text( ( end_pos, y-y_margin+tick_len), " Mb " ,font=font, fill=(0,0,0))
+        font = ImageFont.truetype("Pillow/Tests/fonts/FreeMonoBold.ttf", 50)
+        #try:
+        #    draw.text( ( end_pos, y-y_margin+tick_len), "{} ".format(int(int(rea[k]["posB"])/scale)) ,font=font, fill=(0,0,0))
+        #except:
+        #    draw.text( ( end_pos, y-y_margin+tick_len), "  " ,font=font, fill=(0,0,0))
     if "inv" in rea[k]["variant_type"] or "Inv" in rea[k]["variant_type"]:
         draw.line( (start_pos+int((end_pos-start_pos)/4),  y-y_margin-int(tick_len/2), end_pos-int((end_pos-start_pos)/4) ,  y-y_margin-int(tick_len/2)), fill = (0,0,0),width=6 )    
         x_start_pos=start_pos+int((end_pos-start_pos)/4)
@@ -213,7 +213,7 @@ for k in range(0,len(rea_pos)):
             j +=1
 
 
-    font = ImageFont.truetype("Pillow/Tests/fonts/FreeMonoBold.ttf", 40)
+    font = ImageFont.truetype("Pillow/Tests/fonts/FreeMonoBold.ttf", 80)
     draw.text( ( start_pos+int((end_pos - start_pos)/2) , y-y_margin+2*tick_len), "{}".format(variant),font=font, fill=(0,0,0))
     start_pos=end_pos
 
@@ -247,7 +247,7 @@ for link in links:
     dist=0
     for i in range(0,len(points)-1):
         if draw_line:
-            draw.line( (points[i][0], points[i][1], points[i+1][0], points[i+1][1]), fill = (0,0,0),width=4 )
+            draw.line( (points[i][0], points[i][1], points[i+1][0], points[i+1][1]), fill = (0,0,0),width=line_width )
 
         dist += math.sqrt( math.pow((points[i][0]-points[i+1][0]),2) + math.pow((points[i][1]-points[i+1][1]),2)  )
         if dist > px_lim:
@@ -257,9 +257,9 @@ for link in links:
                 draw_line = True
             dist = 0
 
-    draw.text( ( start+int( (end-start)/2), y_margin-tick_len-int(0.95*sample_link_heigth)+link_heigth), "{}".format(link["link_id"]),font=font, fill=(0,0,0))
-    draw.text( ( start-10, y_margin+2*tick_len+link_heigth), "{}".format(link["link_orientation_1"]),font=font, fill=(0,0,0))
-    draw.text( ( end-10 ,  y_margin+2*tick_len+link_heigth), "{}".format(link["link_orientation_2"]),font=font, fill=(0,0,0))
+    #draw.text( ( start+int( (end-start)/2), y_margin-tick_len-int(0.95*sample_link_heigth)+link_heigth), "{}".format(link["link_id"]),font=font, fill=(0,0,0))
+    #draw.text( ( start-10, y_margin+2*tick_len+link_heigth), "{}".format(link["link_orientation_1"]),font=font, fill=(0,0,0))
+    #draw.text( ( end-10 ,  y_margin+2*tick_len+link_heigth), "{}".format(link["link_orientation_2"]),font=font, fill=(0,0,0))
 
 x_start=x-x_margin*4/3
 x_end=x-x_margin
