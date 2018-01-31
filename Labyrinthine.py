@@ -55,24 +55,29 @@ segment_number=0
 ref_number=0
 for line in open(sys.argv[1]):
     content=line.strip().split("\t")
+    if len(content) == 1:
+            content=line.strip().split(",")
     if line[0] == "#":
         table += 1
         continue
-    print line.strip()
     #get rid of empty rows in the table
     if line.strip().replace("\t","") == "":
         continue
-
+    #get rid of empty rows in the table
+    if line.strip().replace(",","") == "":
+        continue
+    print content
+    print table
     if table == 1:
         ref_pos.append(content[0])
-        ref[content[0]]={ "chrA":content[1],"posA":content[2],"posB":content[5],"chrB":content[4],"variant_type":content[8],"length":content[7],"segment_number":segment_number }
+        ref[content[0]]={ "chrA":content[1],"posA":content[2],"posB":content[4],"chrB":content[3],"variant_type":content[-1],"length":content[5],"segment_number":segment_number }
         segment_number += 1
     elif table ==2:
+        
         links.append( {"link_start_id":content[-2],"link_end_id":content[-1],"link_id":content[0],"link_orientation_1":content[4],"link_orientation_2":content[8]} )
-
     elif table == 3:
         rea_pos.append(ref_number)
-        rea[ref_number]={"id":content[0],"chrA":content[1],"posA":content[2],"posB":content[5],"chrB":content[4],"variant_type":content[8]}
+        rea[ref_number]={"id":content[0],"chrA":content[1],"posA":content[2],"posB":content[4],"chrB":content[3],"variant_type":content[-1]}
         ref_number +=1
 
 
@@ -114,7 +119,6 @@ for variant in ref_pos:
         continue
 
     end_pos=start_pos+int( x_range/segments_to_draw)
-    #end_pos=start_pos+ref[variant]["length"]/float(variant_len)*x_range
     draw.line( (start_pos, y_margin+link_heigth, end_pos, y_margin+link_heigth), fill = colour,width=line_width )
     if variant != ref_pos[0] and variant!= ref_pos[-1]:
         draw.line( (start_pos, y_margin-tick_len+link_heigth, start_pos, y_margin+tick_len+link_heigth), fill = (0,0,0),width=line_width )
@@ -123,15 +127,10 @@ for variant in ref_pos:
 
     if variant != ref_pos[-1]:
         font = ImageFont.truetype("Pillow/Tests/fonts/FreeMonoBold.ttf", 50)
-        #w, h = draw.textsize(str(int(ref[variant]["posB"])/scale),font = font)
-        #draw.text( ( end_pos-int(w/2), y_margin+tick_len+link_heigth), "{}".format(int(int(ref[variant]["posB"])/scale)),font=font, fill=(0,0,0))
         font = ImageFont.truetype("Pillow/Tests/fonts/FreeMonoBold.ttf", 80)
     else:
         font = ImageFont.truetype("Pillow/Tests/fonts/FreeMonoBold.ttf", 50)
-        #try:
-        #    draw.text( ( end_pos, y_margin+tick_len+link_heigth), "{}".format(int(int(ref[variant]["posB"])/scale)) ,font=font, fill=(0,0,0))
-        #except:
-        #    draw.text( ( end_pos, y_margin+tick_len+link_heigth), "",font=font, fill=(0,0,0))
+
 
     if "inv" in ref[variant]["variant_type"] or "Inv" in ref[variant]["variant_type"]:
         draw.line( (start_pos+int((end_pos-start_pos)/4), y_margin+link_heigth-int(tick_len/2), end_pos-int((end_pos-start_pos)/4) , y_margin+link_heigth-int(tick_len/2)), fill = (0,0,0),width=6 )    
@@ -141,11 +140,12 @@ for variant in ref_pos:
 
         j=0
         m=y_margin+link_heigth-int(tick_len/2)
+        print x_start_pos
         for i in range(x_start_pos,x_end_pos):
             y_start_pos=int(round(m-j*increment))
             y_end_pos=int(round(m+j*increment))
             #print y_end_pos
-            draw.line( (i, y_start_pos, i, y_end_pos), fill = (0,0,0),width=line_width*2)
+            draw.line( (i, y_start_pos, i, y_end_pos), fill = (0,0,0),width=8)
             j +=1
 
 
@@ -163,8 +163,9 @@ start_pos=int(x-(ref_number*(x_range/segments_to_draw) ))/2
 for k in range(0,len(rea_pos)):
     variant=rea[k]["id"]
     colour = (0,0,0)
-    if "del" in ref[variant]["variant_type"] or "Del" in ref[variant]["variant_type"]:
-            colour = (255,0,0)
+    #if "del" in ref[variant]["variant_type"] or "Del" in ref[variant]["variant_type"]:
+    if "del" in rea[k]["variant_type"].lower():
+        colour = (255,0,0)
     elif "inv" in ref[variant]["variant_type"] or "Inv" in ref[variant]["variant_type"]:
         colour = (0,0,255)
     elif "dup" in ref[variant]["variant_type"] or "Dup" in ref[variant]["variant_type"]:
@@ -186,17 +187,14 @@ for k in range(0,len(rea_pos)):
 
         
     if k < ref_number-1 and not spacer:
-        print int(int(rea[rea_pos[k+1]]["posA"])/scale)
+
         font = ImageFont.truetype("Pillow/Tests/fonts/FreeMonoBold.ttf", 50)
         w, h = draw.textsize(str("{} {}".format(int(int(ref[variant]["posB"])/scale),int(int(rea[rea_pos[k+1]]["posA"])/scale))),font = font)
-        #draw.text( ( end_pos-int(w/2), y-y_margin+tick_len), "{} {}".format(int(int(rea[k]["posB"])/scale),int(int(rea[k+1]["posA"])/scale)),font=font, fill=(0,0,0))
+
         draw.line( (end_pos, y-y_margin-tick_len, end_pos, y-y_margin+tick_len), fill = (0,0,0),width=line_width )
     else:
         font = ImageFont.truetype("Pillow/Tests/fonts/FreeMonoBold.ttf", 50)
-        #try:
-        #    draw.text( ( end_pos, y-y_margin+tick_len), "{} ".format(int(int(rea[k]["posB"])/scale)) ,font=font, fill=(0,0,0))
-        #except:
-        #    draw.text( ( end_pos, y-y_margin+tick_len), "  " ,font=font, fill=(0,0,0))
+
     if "inv" in rea[k]["variant_type"] or "Inv" in rea[k]["variant_type"]:
         draw.line( (start_pos+int((end_pos-start_pos)/4),  y-y_margin-int(tick_len/2), end_pos-int((end_pos-start_pos)/4) ,  y-y_margin-int(tick_len/2)), fill = (0,0,0),width=6 )    
         x_start_pos=start_pos+int((end_pos-start_pos)/4)
@@ -229,6 +227,7 @@ for link in links:
     index= 0
     if "end" in link["link_end_id"].split(":")[-1]:
         index = 1
+    print link["link_end_id"].split(":")[0]
     segment= ref[ link["link_end_id"].split(":")[0] ]["segment_number"]
     end=pos_vector[ segment  ][ index ]
     sample_link_heigth=link_heigth
@@ -236,14 +235,14 @@ for link in links:
         sample_link_heigth= link_heigth/2
 
 
-    ts = [t/1300.0 for t in range(1301)]
+    ts = [t/10300.0 for t in range(10301)]
 
     xys = [(start,y_margin-tick_len+link_heigth),(start, y_margin-tick_len-sample_link_heigth+link_heigth),(end, y_margin-tick_len-sample_link_heigth+link_heigth),(end, y_margin-tick_len+link_heigth)]
     bezier = make_bezier(xys)
     points = bezier(ts)
     j=0
     draw_line = True
-    px_lim=10
+    px_lim=20
     dist=0
     for i in range(0,len(points)-1):
         if draw_line:
@@ -261,21 +260,21 @@ for link in links:
     #draw.text( ( start-10, y_margin+2*tick_len+link_heigth), "{}".format(link["link_orientation_1"]),font=font, fill=(0,0,0))
     #draw.text( ( end-10 ,  y_margin+2*tick_len+link_heigth), "{}".format(link["link_orientation_2"]),font=font, fill=(0,0,0))
 
-x_start=x-x_margin*4/3
-x_end=x-x_margin
-draw.line( (x_start, int(y_margin/4), x_end , int(y_margin/4) ), fill = (0,255,0),width=6 )
-draw.text( (x_end+10 , int(y_margin/4)-20 ),"Dup", font=font, fill=(0,0,0))
-draw.line( ( x_start, 2*int(y_margin/4), x_end, 2*int(y_margin/4)), fill = (255,0,0),width=6 )
-draw.text( ( x_end+10 , 2*int(y_margin/4)-20 ), "Del",font=font, fill=(0,0,0))
-draw.line( (x_start, 3*int(y_margin/4),x_end, 3*int(y_margin/4)), fill = (0,0,255),width=6 )
-draw.text( ( x_end+10 , 3*int(y_margin/4)-20 ), "Inv" ,font=font, fill=(0,0,0))
-draw.line( (x_start, 4*int(y_margin/4),x_end, 4*int(y_margin/4)), fill = (0,0,0),width=6 )
-draw.text( ( x_end+10 , 4*int(y_margin/4)-20 ), "Normal" ,font=font, fill=(0,0,0))
-draw.line( (x_start, 5*int(y_margin/4),x_start+int((x_end-x_start)/7), 5*int(y_margin/4)), fill = (0,0,0),width=6 )
-draw.line( (x_start+2*int((x_end-x_start)/7), 5*int(y_margin/4),x_start+3*int((x_end-x_start)/7), 5*int(y_margin/4)), fill = (0,0,0),width=6 )
-draw.line( (x_start+4*int((x_end-x_start)/7), 5*int(y_margin/4),x_start+5*int((x_end-x_start)/7), 5*int(y_margin/4)), fill = (0,0,0),width=6 )
-draw.line( (x_start+6*int((x_end-x_start)/7), 5*int(y_margin/4),x_start+7*int((x_end-x_start)/7), 5*int(y_margin/4)), fill = (0,0,0),width=6 )
-draw.text( ( x_end+10 , 5*int(y_margin/4)-20 ), "Links" ,font=font, fill=(0,0,0))
+x_start=x-x_margin-200
+x_end=x-x_margin-100
+draw.line( (x_start, int(y_margin/4), x_end , int(y_margin/4) ), fill = (0,255,0),width=line_width )
+draw.text( (x_end+10 , int(y_margin/4)-40 ),"Dup", font=font, fill=(0,0,0))
+draw.line( ( x_start, 2*int(y_margin/4), x_end, 2*int(y_margin/4)), fill = (255,0,0),width=line_width )
+draw.text( ( x_end+10 , 2*int(y_margin/4)-40 ), "Del",font=font, fill=(0,0,0))
+draw.line( (x_start, 3*int(y_margin/4),x_end, 3*int(y_margin/4)), fill = (0,0,255),width=line_width )
+draw.text( ( x_end+10 , 3*int(y_margin/4)-40 ), "Inv" ,font=font, fill=(0,0,0))
+draw.line( (x_start, 4*int(y_margin/4),x_end, 4*int(y_margin/4)), fill = (0,0,0),width=line_width )
+draw.text( ( x_end+10 , 4*int(y_margin/4)-40 ), "Normal" ,font=font, fill=(0,0,0))
+draw.line( (x_start, 5*int(y_margin/4),x_start+int((x_end-x_start)/7), 5*int(y_margin/4)), fill = (0,0,0),width=line_width )
+draw.line( (x_start+2*int((x_end-x_start)/7), 5*int(y_margin/4),x_start+3*int((x_end-x_start)/7), 5*int(y_margin/4)), fill = (0,0,0),width=line_width )
+draw.line( (x_start+4*int((x_end-x_start)/7), 5*int(y_margin/4),x_start+5*int((x_end-x_start)/7), 5*int(y_margin/4)), fill = (0,0,0),width=line_width )
+draw.line( (x_start+6*int((x_end-x_start)/7), 5*int(y_margin/4),x_start+7*int((x_end-x_start)/7), 5*int(y_margin/4)), fill = (0,0,0),width=line_width )
+draw.text( ( x_end+10 , 5*int(y_margin/4)-40 ), "Links" ,font=font, fill=(0,0,0))
 image.save("{}.png".format(sys.argv[3]), "PNG")
 
 
